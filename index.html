@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050507">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ARCHIVO 018 — Acceso restringido</title>
+<!-- Vinculación del archivo CSS -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <div class="progress" id="progress"></div>
+  <div class="noise"></div><div class="scanlines"></div>
+
+  <!-- PANTALLA 1 -->
+  <section class="screen active" id="s1">
+    <div class="container center">
+      <div class="logo">M-18 // SECURE SYSTEM</div>
+      <div class="eyebrow">ARCHIVO DIGITAL</div>
+      <div class="big glitch" data-text="018">018</div>
+      <p class="sub type" id="typing"></p>
+      <div class="status"><span>SISTEMA: <b class="live">ONLINE</b></span><span>ACCESO: RESTRINGIDO</span></div>
+      <button class="btn" onclick="go(2)">Acceder</button>
+      <div class="prompt">No cierres esta ventana.</div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 2 -->
+  <section class="screen" id="s2">
+    <div class="container">
+      <div class="eyebrow">ARCHIVO #018 / REGISTRO 01</div>
+      <div class="file-card" style="margin-top:16px">
+        <div class="eyebrow">CLASIFICACIÓN: PERSONAL</div>
+        <div class="file-title">Tenemos un problema.</div>
+        <p class="file-copy">El sujeto identificado como <b> CRISTIAN H </b> ha alcanzado una edad considerada crítica por las autoridades competentes.</p>
+        <div class="bar"><i></i></div>
+        <div class="data">
+          <div><small>EDAD DETECTADA</small><b>18 AÑOS</b></div>
+          <div><small>NIVEL DE RIESGO</small><b class="red">ELEVADO</b></div>
+          <div><small>ESTADO</small><b>CELEBRANDO</b></div>
+          <div><small>INVITADOS</small><b>SELECCIONADOS</b></div>
+        </div>
+        <p class="file-copy reveal">Por motivos que todavía no podemos revelar, <b>vos</b> fuiste seleccionado para presenciar el evento.</p>
+      </div>
+      <div class="actions"><button class="btn" onclick="go(3)">Continuar investigación →</button></div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 3 -->
+  <section class="screen" id="s3">
+    <div class="container">
+      <div class="eyebrow">REGISTRO 02 / PRUEBA DE ACCESO</div>
+      <div class="file-title" style="margin-top:14px">Antes de continuar...</div>
+      <p class="file-copy">Tenemos que comprobar que realmente sos una persona autorizada. Encontrá el código oculto entre los siguientes registros.</p>
+      <div class="reason-grid">
+        <div class="reason" onclick="unlock(this,0)"><span>Registro A-01</span><span>＋</span><div class="hiddenInfo">Nada por aquí. Demasiado obvio.</div></div>
+        <div class="reason" onclick="unlock(this,1)"><span>Registro B-18</span><span>＋</span><div class="hiddenInfo">Archivo parcialmente corrupto. Código: <b>1</b></div></div>
+        <div class="reason" onclick="unlock(this,2)"><span>Registro C-07</span><span>＋</span><div class="hiddenInfo">Información sin relevancia.</div></div>
+        <div class="reason" onclick="unlock(this,3)"><span>Registro D-??</span><span>＋</span><div class="hiddenInfo">Código encontrado: <b>8</b></div></div>
+      </div>
+      <p class="prompt" id="testStatus">Pista: el archivo ya te dijo la respuesta.</p>
+      <div class="codebox" id="codebox">
+        <input maxlength="1" inputmode="numeric" aria-label="primer dígito">
+        <input maxlength="1" inputmode="numeric" aria-label="segundo dígito">
+      </div>
+      <button class="btn" style="width:100%" onclick="checkCode()">Verificar código</button>
+    </div>
+  </section>
+
+  <!-- PANTALLA 4 -->
+  <section class="screen" id="s4">
+    <div class="container hero18">
+      <div class="eyebrow">ACCESO CONCEDIDO</div>
+      <div class="number glitch" data-text="18">18</div>
+      <h2>Una edad.<br>Una noche.</h2>
+      <p>Y ahora ya sabés por qué recibiste este archivo.</p>
+      <button class="btn" style="margin-top:22px" onclick="go(5)">Descubrir la misión</button>
+    </div>
+  </section>
+
+  <!-- PANTALLA 5 -->
+  <section class="screen" id="s5">
+    <div class="container">
+      <div class="eyebrow">ARCHIVO FINAL / INFORMACIÓN DEL EVENTO</div>
+      <div class="file-title">La misión es simple.</div>
+      <p class="file-copy">Venir, celebrar y hacer que esta noche quede para el recuerdo.</p>
+
+      <div class="event">
+        <div class="event-row"><div class="event-label">PROTAGONISTA</div><div class="event-value"> CRISTIAN </div></div>
+        <div class="event-row"><div class="event-label">FECHA</div><div class="event-value"> 03/10/2026 </div></div>
+        <div class="event-row"><div class="event-label">HORA</div><div class="event-value"> 22:30 HS </div></div>
+        <div class="event-row"><div class="event-label">LUGAR</div><div class="event-value"> MAXIMO NOUGUES </div><a class="mapbtn" href="https://maps.app.goo.gl/heuQpeJHryxyRfPK6" target="_blank" rel="noopener">Abrir ubicación ↗</a></div>
+        <div class="event-row"><div class="event-label">DRESS CODE</div><div class="event-value"> CASUAL </div></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" onclick="confirmar()">Confirmar asistencia</button>
+        <button class="btn" onclick="addCalendar()">Agregar al calendario</button>
+      </div>
+      <p class="final">El archivo será cerrado después de tu respuesta.<br><span class="success">Gracias por ser parte de esta noche.</span></p>
+    </div>
+  </section>
+
+  <div class="toast" id="toast">Acción completada</div>
+</div>
+
+<!-- Vinculación del archivo JavaScript -->
+<script src="js/script.js"></script>
+</body>
+</html>
