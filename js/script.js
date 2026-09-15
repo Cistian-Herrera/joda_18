@@ -1,12 +1,13 @@
 function addCalendar(){
-  // Corrección: Convertimos "03-10-2026" (DD-MM-YYYY) al formato requerido "20261003" (YYYYMMDD)
-  const partesFecha = CONFIG.fechaISO.split("-");
-  const fechaFormateada = partesFecha[2] + partesFecha[1] + partesFecha[0]; 
+  // Separamos el "03-10-2026" en [ "03", "10", "2026" ]
+  const partes = CONFIG.fechaISO.split("-");
+  // Lo ordenamos correctamente como "20261003"
+  const fechaFormateada = partes[2] + partes[1] + partes[0]; 
   
   const start = fechaFormateada + "T" + CONFIG.hora.replace(":", "") + "00";
   
-  // Convertimos a objeto Date real usando formato nativo (YYYY-MM-DD) para calcular el final
-  const d = new Date(`${partesFecha[2]}-${partesFecha[1]}-${partesFecha[0]}T${CONFIG.hora}:00`);
+  // Creamos la fecha base para calcular la duración
+  const d = new Date(partes[2], partes[1] - 1, partes[0], 22, 30);
   const end = new Date(d.getTime() + 4 * 60 * 60 * 1000);
   
   const pad = n => String(n).padStart(2, "0");
