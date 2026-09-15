@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#050507">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ARCHIVO 018 — Acceso restringido</title>
+<style>
+:root{
+  --bg:#050507;
+  --panel:#0c0c11;
+  --text:#f2f2f5;
+  --muted:#8d8d9a;
+  --line:#292933;
+  --accent:#e7e7ee;
+  --danger:#ff4d67;
+  --ok:#72f0a8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;min-height:100%;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{overflow-x:hidden}
+button{font:inherit;color:inherit}
+#app{min-height:100svh;position:relative;overflow:hidden}
+.noise{position:fixed;inset:0;pointer-events:none;opacity:.035;z-index:50;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.7'/%3E%3C/svg%3E")}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:49;background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(255,255,255,.012) 4px)}
+.screen{min-height:100svh;display:none;align-items:center;justify-content:center;padding:24px 18px;position:relative}
+.screen.active{display:flex;animation:appear .55s ease both}
+.container{width:min(100%,560px);position:relative}
+.corner{position:absolute;width:20px;height:20px;border-color:#555;opacity:.7}
+.c1{left:0;top:0;border-left:1px solid;border-top:1px solid}.c2{right:0;top:0;border-right:1px solid;border-top:1px solid}
+.c3{left:0;bottom:0;border-left:1px solid;border-bottom:1px solid}.c4{right:0;bottom:0;border-right:1px solid;border-bottom:1px solid}
+.eyebrow{font-size:10px;letter-spacing:.28em;color:var(--muted);text-transform:uppercase}
+.center{text-align:center}
+.logo{font-size:11px;letter-spacing:.45em;color:#aaa;margin-bottom:28px}
+.big{font-size:clamp(58px,20vw,130px);line-height:.82;font-weight:800;letter-spacing:-.07em}
+.sub{font-size:13px;color:var(--muted);line-height:1.7;margin:22px auto 34px;max-width:390px}
+.btn{border:1px solid #555;background:#101016;padding:16px 22px;min-width:190px;cursor:pointer;letter-spacing:.16em;text-transform:uppercase;font-size:11px;transition:.2s}
+.btn:hover,.btn:active{background:#e9e9ee;color:#07070a;border-color:#fff}
+.status{display:flex;justify-content:space-between;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin:30px 0;color:#777;font-size:9px;letter-spacing:.15em;text-transform:uppercase}
+.status .live{color:var(--ok)}
+.file-card{border:1px solid var(--line);background:linear-gradient(145deg,#0b0b10,#07070a);padding:28px 22px;position:relative}
+.file-title{font-size:clamp(28px,8vw,44px);font-weight:700;letter-spacing:-.04em;margin:8px 0 12px}
+.file-copy{color:#a5a5af;font-size:13px;line-height:1.75}
+.bar{height:2px;background:#222;margin:24px 0;overflow:hidden}.bar i{display:block;width:0;height:100%;background:#ddd;animation:load 1.8s ease forwards}
+.data{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:18px}
+.data div{border:1px solid #202028;padding:12px}.data small{display:block;color:#666;font-size:8px;letter-spacing:.14em;margin-bottom:5px}.data b{font-size:11px;font-weight:500}
+.actions{display:grid;gap:10px;margin-top:24px}.actions .btn{width:100%}
+.progress{position:fixed;top:0;left:0;height:2px;background:#eee;width:0;z-index:100;transition:width .5s}
+.type{min-height:42px}
+.prompt{color:#6f6f79;font-size:11px;margin-top:24px}
+.glitch{position:relative;display:inline-block}
+.glitch:before,.glitch:after{content:attr(data-text);position:absolute;inset:0;opacity:.5;clip-path:inset(0 0 55% 0)}
+.glitch:before{transform:translate(2px,-1px);color:#fff}.glitch:after{transform:translate(-2px,1px);color:#888;clip-path:inset(52% 0 0 0)}
+.red{color:var(--danger)}
+.success{color:var(--ok)}
+.reveal{opacity:0;transform:translateY(8px);animation:reveal .7s .2s ease forwards}
+.reason-grid{display:grid;gap:10px;margin-top:24px}
+.reason{border:1px solid #202028;background:#0a0a0f;padding:16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
+.reason span:first-child{font-size:11px;letter-spacing:.12em;text-transform:uppercase}.reason span:last-child{color:#666}
+.reason.unlocked{border-color:#444}
+.hiddenInfo{display:none;margin-top:12px;padding:14px;border-left:1px solid #888;background:#0a0a0d;color:#aaa;font-size:12px;line-height:1.6}
+.hiddenInfo.show{display:block;animation:reveal .35s ease}
+.hero18{text-align:center}
+.hero18 .number{font-size:clamp(130px,42vw,260px);font-weight:900;line-height:.7;letter-spacing:-.1em;margin:28px 0}
+.hero18 h2{font-size:clamp(24px,7vw,40px);margin:0 0 12px;letter-spacing:-.04em}
+.hero18 p{color:#999;line-height:1.7;font-size:13px}
+.event{margin-top:35px;border:1px solid #292930;background:#09090d}
+.event-row{padding:18px;border-bottom:1px solid #202028}.event-row:last-child{border:0}
+.event-label{font-size:8px;letter-spacing:.2em;color:#666;text-transform:uppercase;margin-bottom:6px}.event-value{font-size:18px}
+.mapbtn{margin-top:10px;display:inline-block;color:#ddd;font-size:10px;text-transform:uppercase;letter-spacing:.15em;text-decoration:none;border-bottom:1px solid #555;padding-bottom:3px}
+.final{font-size:13px;color:#999;line-height:1.8;text-align:center;margin:30px auto;max-width:390px}
+.codebox{display:flex;gap:7px;justify-content:center;margin:25px 0}.codebox input{width:48px;height:54px;background:#09090d;border:1px solid #303039;color:#fff;text-align:center;font-size:20px;outline:none;text-transform:uppercase}.codebox input:focus{border-color:#aaa}
+.shake{animation:shake .35s}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#eee;color:#08080b;padding:11px 16px;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:0;pointer-events:none;z-index:200;transition:.3s;white-space:nowrap}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+@keyframes appear{from{opacity:0}to{opacity:1}}@keyframes load{to{width:100%}}@keyframes reveal{to{opacity:1;transform:none}}@keyframes shake{25%{transform:translateX(-5px)}50%{transform:translateX(5px)}75%{transform:translateX(-3px)}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="progress" id="progress"></div>
+  <div class="noise"></div><div class="scanlines"></div>
+
+  <!-- PANTALLA 1 -->
+  <section class="screen active" id="s1">
+    <div class="container center">
+      <div class="logo">M-18 // SECURE SYSTEM</div>
+      <div class="eyebrow">ARCHIVO DIGITAL</div>
+      <div class="big glitch" data-text="018">018</div>
+      <p class="sub type" id="typing"></p>
+      <div class="status"><span>SISTEMA: <b class="live">ONLINE</b></span><span>ACCESO: RESTRINGIDO</span></div>
+      <button class="btn" onclick="go(2)">Acceder</button>
+      <div class="prompt">No cierres esta ventana.</div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 2 -->
+  <section class="screen" id="s2">
+    <div class="container">
+      <div class="eyebrow">ARCHIVO #018 / REGISTRO 01</div>
+      <div class="file-card" style="margin-top:16px">
+        <div class="eyebrow">CLASIFICACIÓN: PERSONAL</div>
+        <div class="file-title">Tenemos un problema.</div>
+        <p class="file-copy">El sujeto identificado como <b> CRISTIAN H </b> ha alcanzado una edad considerada crítica por las autoridades competentes.</p>
+        <div class="bar"><i></i></div>
+        <div class="data">
+          <div><small>EDAD DETECTADA</small><b>18 AÑOS</b></div>
+          <div><small>NIVEL DE RIESGO</small><b class="red">ELEVADO</b></div>
+          <div><small>ESTADO</small><b>CELEBRANDO</b></div>
+          <div><small>INVITADOS</small><b>SELECCIONADOS</b></div>
+        </div>
+        <p class="file-copy reveal">Por motivos que todavía no podemos revelar, <b>vos</b> fuiste seleccionado para presenciar el evento.</p>
+      </div>
+      <div class="actions"><button class="btn" onclick="go(3)">Continuar investigación →</button></div>
+    </div>
+  </section>
+
+  <!-- PANTALLA 3 -->
+  <section class="screen" id="s3">
+    <div class="container">
+      <div class="eyebrow">REGISTRO 02 / PRUEBA DE ACCESO</div>
+      <div class="file-title" style="margin-top:14px">Antes de continuar...</div>
+      <p class="file-copy">Tenemos que comprobar que realmente sos una persona autorizada. Encontrá el código oculto entre los siguientes registros.</p>
+      <div class="reason-grid">
+        <div class="reason" onclick="unlock(this,0)"><span>Registro A-01</span><span>＋</span><div class="hiddenInfo">Nada por aquí. Demasiado obvio.</div></div>
+        <div class="reason" onclick="unlock(this,1)"><span>Registro B-18</span><span>＋</span><div class="hiddenInfo">Archivo parcialmente corrupto. Código: <b>1</b></div></div>
+        <div class="reason" onclick="unlock(this,2)"><span>Registro C-07</span><span>＋</span><div class="hiddenInfo">Información sin relevancia.</div></div>
+        <div class="reason" onclick="unlock(this,3)"><span>Registro D-??</span><span>＋</span><div class="hiddenInfo">Código encontrado: <b>8</b></div></div>
+      </div>
+      <p class="prompt" id="testStatus">Pista: el archivo ya te dijo la respuesta.</p>
+      <div class="codebox" id="codebox">
+        <input maxlength="1" inputmode="numeric" aria-label="primer dígito">
+        <input maxlength="1" inputmode="numeric" aria-label="segundo dígito">
+      </div>
+      <button class="btn" style="width:100%" onclick="checkCode()">Verificar código</button>
+    </div>
+  </section>
+
+  <!-- PANTALLA 4 -->
+  <section class="screen" id="s4">
+    <div class="container hero18">
+      <div class="eyebrow">ACCESO CONCEDIDO</div>
+      <div class="number glitch" data-text="18">18</div>
+      <h2>Una edad.<br>Una noche.</h2>
+      <p>Y ahora ya sabés por qué recibiste este archivo.</p>
+      <button class="btn" style="margin-top:22px" onclick="go(5)">Descubrir la misión</button>
+    </div>
+  </section>
+
+  <!-- PANTALLA 5 -->
+  <section class="screen" id="s5">
+    <div class="container">
+      <div class="eyebrow">ARCHIVO FINAL / INFORMACIÓN DEL EVENTO</div>
+      <div class="file-title">La misión es simple.</div>
+      <p class="file-copy">Venir, celebrar y hacer que esta noche quede para el recuerdo.</p>
+
+      <div class="event">
+        <div class="event-row"><div class="event-label">PROTAGONISTA</div><div class="event-value"> CRISTIAN </div></div>
+        <div class="event-row"><div class="event-label">FECHA</div><div class="event-value"> 03/10/2026 </div></div>
+        <div class="event-row"><div class="event-label">HORA</div><div class="event-value"> 22:30 HS </div></div>
+        <div class="event-row"><div class="event-label">LUGAR</div><div class="event-value"> MAXIMO NOUGUES </div><a class="mapbtn" href="https://maps.app.goo.gl/heuQpeJHryxyRfPK6" target="_blank" rel="noopener">Abrir ubicación ↗</a></div>
+        <div class="event-row"><div class="event-label">DRESS CODE</div><div class="event-value"> CASUAL </div></div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" onclick="confirmar()">Confirmar asistencia</button>
+        <button class="btn" onclick="addCalendar()">Agregar al calendario</button>
+      </div>
+      <p class="final">El archivo será cerrado después de tu respuesta.<br><span class="success">Gracias por ser parte de esta noche.</span></p>
+    </div>
+  </section>
+
+  <div class="toast" id="toast">Acción completada</div>
+</div>
+
+<script>
+const CONFIG={
+  nombre:"Cristian",
+  fechaISO:"03-10-2026",
+  hora:"22:30",
+  lugar:"En mi casa",
+  whatsapp:"+5493813190816"
+};
+
+let current=1;
+const screens=document.querySelectorAll(".screen");
+function go(n){
+  screens.forEach(s=>s.classList.remove("active"));
+  document.getElementById("s"+n).classList.add("active");
+  current=n;
+  document.getElementById("progress").style.width=((n-1)/4*100)+"%";
+  window.scrollTo(0,0);
+}
+const text="Se ha detectado una invitación destinada exclusivamente a vos. ¿Deseás conocer el contenido?";
+let ti=0;
+(function type(){if(ti<text.length){document.getElementById("typing").textContent+=text[ti++];setTimeout(type,28)}})();
+
+function unlock(el,index){
+  const info=el.querySelector(".hiddenInfo");
+  info.classList.toggle("show");
+  el.classList.add("unlocked");
+  el.querySelector("span:last-of-type").textContent=info.classList.contains("show")?"−":"＋";
+}
+function checkCode(){
+  const inputs=[...document.querySelectorAll("#codebox input")];
+  const code=inputs.map(x=>x.value).join("");
+  const box=document.getElementById("codebox");
+  if(code==="18"){
+    document.getElementById("testStatus").innerHTML='<span class="success">CÓDIGO ACEPTADO. Identidad verificada.</span>';
+    setTimeout(()=>go(4),500);
+  }else{
+    box.classList.remove("shake");void box.offsetWidth;box.classList.add("shake");
+    document.getElementById("testStatus").innerHTML='<span class="red">Código incorrecto. Pista: ¿qué edad estamos celebrando?</span>';
+    inputs.forEach(x=>x.value="");inputs[0].focus();
+  }
+}
+document.querySelectorAll("#codebox input").forEach((input,i,arr)=>{
+  input.addEventListener("input",()=>{if(input.value && arr[i+1])arr[i+1].focus()});
+  input.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!input.value&&arr[i-1])arr[i-1].focus()});
+});
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2200)}
+function confirmar(){
+  const msg=encodeURIComponent("Hola! Confirmo mi asistencia al cumpleaños de 18 de "+CONFIG.nombre+" :)");
+  window.open("https://wa.me/"+CONFIG.whatsapp+"?text="+msg,"_blank");
+}
+function addCalendar(){
+  const start=CONFIG.fechaISO.replaceAll("-","")+"T"+CONFIG.hora.replace(":","")+"00";
+  const d=new Date(CONFIG.fechaISO+"T"+CONFIG.hora+":00");
+  const end=new Date(d.getTime()+4*60*60*1000);
+  const pad=n=>String(n).padStart(2,"0");
+  const fmt=x=>x.getFullYear()+pad(x.getMonth()+1)+pad(x.getDate())+"T"+pad(x.getHours())+pad(x.getMinutes())+"00";
+  const ics=["BEGIN:VCALENDAR","VERSION:2.0","BEGIN:VEVENT","DTSTART:"+start,"DTEND:"+fmt(end),"SUMMARY:Cumpleaños de 18 — "+CONFIG.nombre,"LOCATION:"+CONFIG.lugar,"DESCRIPTION:Cumpleaños de 18. ¡Nos vemos!","END:VEVENT","END:VCALENDAR"].join("\r\n");
+  const blob=new Blob([ics],{type:"text/calendar"});
+  const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="cumpleanos-18.ics";a.click();URL.revokeObjectURL(a.href);
+  toast("Calendario preparado");
+}
+</script>
+</body>
+</html>
